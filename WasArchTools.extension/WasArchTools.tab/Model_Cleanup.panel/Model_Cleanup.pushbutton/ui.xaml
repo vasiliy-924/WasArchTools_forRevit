@@ -1,0 +1,94 @@
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Model Cleanup"
+    Width="400"
+    Height="300"
+    WindowStartupLocation="CenterScreen"
+    ResizeMode="NoResize"
+    ShowInTaskbar="False">
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0"
+                   Text="Выберите категории для очистки:"
+                   FontSize="14"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,10"/>
+        
+        <!-- Список категорий -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Name="CategoriesPanel"
+                        Margin="0,0,0,10">
+                <GroupBox Header="Категории">
+                    <StackPanel Margin="5">
+                        <CheckBox Name="AnnotationsCheck"
+                                Content="Аннотации"
+                                ToolTip="Удаление пустых аннотаций"
+                                Margin="0,5"/>
+                        <TextBlock Text="Удаляет текстовые заметки без содержимого"
+                                 Margin="20,0,0,10"
+                                 TextWrapping="Wrap"
+                                 Foreground="Gray"/>
+                        
+                        <CheckBox Name="LineStylesCheck"
+                                Content="Типы линий"
+                                ToolTip="Удаление неиспользуемых типов линий"
+                                Margin="0,5"/>
+                        <TextBlock Text="Удаляет стили линий, которые не используются в проекте"
+                                 Margin="20,0,0,10"
+                                 TextWrapping="Wrap"
+                                 Foreground="Gray"/>
+                        
+                        <CheckBox Name="ViewFiltersCheck"
+                                Content="Фильтры видов"
+                                ToolTip="Удаление неиспользуемых фильтров"
+                                Margin="0,5"/>
+                        <TextBlock Text="Удаляет фильтры, которые не применены ни к одному виду"
+                                 Margin="20,0,0,10"
+                                 TextWrapping="Wrap"
+                                 Foreground="Gray"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- Кнопки -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Прогресс -->
+            <ProgressBar Name="ProgressBar"
+                         Grid.Column="0"
+                         Height="2"
+                         Margin="0,0,10,0"
+                         Visibility="Collapsed"/>
+            
+            <!-- Кнопки -->
+            <Button Name="CancelButton"
+                    Grid.Column="1"
+                    Content="Отмена"
+                    Width="75"
+                    Height="23"
+                    Margin="0,0,10,0"/>
+            
+            <Button Name="CleanupButton"
+                    Grid.Column="2"
+                    Content="Очистить"
+                    Width="75"
+                    Height="23"
+                    IsDefault="True"/>
+        </Grid>
+    </Grid>
+</Window> 

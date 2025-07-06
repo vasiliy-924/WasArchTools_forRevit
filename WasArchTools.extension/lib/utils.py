@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Utility functions for WasArchTools extension."""
 
 from pyrevit import forms
@@ -20,7 +21,7 @@ def start_transaction(doc, name):
     return t
 
 
-def handle_error(error, title="Ошибка"):
+def handle_error(error, title="Error"):
     """Handle and log an error.
 
     Args:
@@ -32,7 +33,7 @@ def handle_error(error, title="Ошибка"):
     forms.alert(
         msg=str(error),
         title=title,
-        sub_msg="Проверьте лог для деталей"
+        sub_msg="Check log for details"
     )
 
 
