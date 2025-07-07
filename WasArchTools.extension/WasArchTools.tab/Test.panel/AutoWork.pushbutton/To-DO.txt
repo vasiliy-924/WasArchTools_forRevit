@@ -1,0 +1,99 @@
+Вот **упрощённое техническое задание**, соответствующее вашему запросу: кнопка **ничего не делает**, **только выводит сообщение «Привет»**.
+
+---
+
+## Упрощённое техническое задание
+
+**Проект:** AutoWork.pushbutton
+**Цель:** создать кнопку в pyRevit, при нажатии на которую появляется окно с текстом **«Привет»**. Больше ничего не происходит.
+
+---
+
+### 1. Язык и технология
+
+* **Язык:** Python (pyRevit)
+* **Интерфейс:** WPF (XAML)
+
+---
+
+### 2. Поведение кнопки
+
+* При нажатии на кнопку в pyRevit открывается простое окно.
+* В окне отображается только текст **«Привет»**.
+* Никакой фоновой работы, прогресс-бара, случайных сообщений, взаимодействий с Revit API — **нет**.
+
+---
+
+### 3. Структура проекта
+
+```
+AutoWork.pushbutton/
+├── script.py         # запуск окна
+├── ui.py             # логика UI
+├── ui.xaml           # интерфейс с текстом «Привет»
+```
+
+---
+
+### 4. ui.xaml (интерфейс)
+
+```xml
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    Title="AutoWork" Height="120" Width="250">
+  <Grid>
+    <TextBlock Text="Привет"
+               FontSize="24"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               TextAlignment="Center"/>
+  </Grid>
+</Window>
+```
+
+---
+
+### 5. ui.py (логика интерфейса)
+
+```python
+import os
+import clr
+from System.Windows import Application, Window
+from System.Windows.Markup import XamlReader
+from System.IO import FileStream, FileMode
+
+class HelloWindow(Window):
+    def __init__(self):
+        path = os.path.join(os.path.dirname(__file__), "ui.xaml")
+        fs = FileStream(path, FileMode.Open)
+        self.wnd = XamlReader.Load(fs)
+        fs.Close()
+
+    def Show(self):
+        Application().Run(self.wnd)
+
+def show_window():
+    HelloWindow().Show()
+```
+
+---
+
+### 6. script.py (точка входа)
+
+```python
+# script.py
+import ui
+ui.show_window()
+```
+
+---
+
+### 7. Интеграция в pyRevit
+
+1. Положить папку `AutoWork.pushbutton` в папку расширений pyRevit.
+2. Убедиться, что `script.py` вызывается кнопкой.
+3. При нажатии открывается окно с надписью **«Привет»**.
+
+---
+
+Готово! Кнопка делает только то, что нужно: **ничего не делает, кроме показа слова «Привет»**.
