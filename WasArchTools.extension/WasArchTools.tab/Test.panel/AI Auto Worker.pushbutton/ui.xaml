@@ -1,0 +1,26 @@
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    Title="AutoWork" Height="200" Width="340">
+  <Grid>
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+      <TextBlock Text="AI Auto Drawing 🧠"
+                 FontSize="24"
+                 HorizontalAlignment="Center"
+                 TextAlignment="Center"
+                 Margin="0,0,0,10"/>
+      <TextBlock Name="StatusText"
+                 Text="Статус..."
+                 FontSize="16"
+                 HorizontalAlignment="Center"
+                 TextAlignment="Center"
+                 Margin="0,10,0,0"/>
+      <ProgressBar Name="ProgressBar"
+                   Width="220"
+                   Height="16"
+                   Margin="0,18,0,0"
+                   Minimum="0"
+                   Maximum="100"
+                   Value="0"/>
+    </StackPanel>
+  </Grid>
+</Window> 
