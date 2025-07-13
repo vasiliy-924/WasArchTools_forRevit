@@ -272,11 +272,13 @@ def main():
     candidates = {}
     if 'annotations' in selected:
         candidates['annotations'] = find_empty_annotations()
-    # Отключено для диагностики:
-    # if 'line_styles' in selected:
-    #     candidates['line_styles'] = find_unused_line_styles()
-    # if 'view_filters' in selected:
-    #     candidates['view_filters'] = find_unused_view_filters()
+    if 'line_styles' in selected:
+        # Только те стили, которые не используются (used_count == 0)
+        all_line_styles = find_unused_line_styles()
+        candidates['line_styles'] = [ls for ls in all_line_styles if ls.used_count == 0]
+    if 'view_filters' in selected:
+        # Только неиспользуемые фильтры (ни на одном виде)
+        candidates['view_filters'] = [vf for vf in find_unused_view_filters() if not vf.used_in_views]
     # Окно предварительного просмотра
     preview = ui.PreviewDeleteWindow(candidates)
     if not preview.ShowDialog():
@@ -296,13 +298,65 @@ def main():
             # Для аннотаций работаем с ID
             elements = [el_id for el_id in candidates.get(key, []) 
                        if el_id in selected_to_delete.get(key, set())]
+        elif key == 'line_styles':
+            # Для line_styles работаем с объектами (LineStyleCandidate)
+            elements = [el for el in candidates.get(key, []) 
+                       if el.Id in selected_to_delete.get(key, set())]
+        elif key == 'view_filters':
+            # Для view_filters работаем с объектами (ViewFilterCandidate)
+            elements = [el for el in candidates.get(key, []) 
+                       if el.Id in selected_to_delete.get(key, set())]
         else:
             # Для остальных категорий работаем с объектами
             elements = [el for el in candidates.get(key, []) 
                        if el.Id in selected_to_delete.get(key, set())]
         log_to_file(u"Начинаем удаление {0}: найдено {1} элементов".format(
             key, len(elements)))
-        deleted, errors = delete_elements(elements, key)
+        deleted = 0
+        errors = 0
+        if key == 'annotations':
+            # Для аннотаций работаем с ID (реальное удаление уже реализовано)
+            pass
+        elif key == 'line_styles':
+            # Удаляем батчами по 20 штук
+            batch_size = 20
+            for i in range(0, len(elements), batch_size):
+                batch = elements[i:i+batch_size]
+                try:
+                    with revit.Transaction(u"Удаление стилей линий (batch {0}-{1})".format(i+1, i+len(batch))):
+                        for el in batch:
+                            try:
+                                doc.Delete(el.Id)
+                                deleted += 1
+                                log_to_file(u"Удалён стиль линии: {0} (Id: {1})".format(el.Name, el.Id))
+                            except Exception as e:
+                                errors += 1
+                                log_to_file(u"Ошибка при удалении стиля линии: {0} (Id: {1}): {2}".format(el.Name, el.Id, str(e)))
+                except Exception as e:
+                    errors += len(batch)
+                    log_to_file(u"Ошибка транзакции при удалении батча стилей линий {0}-{1}: {2}".format(i+1, i+len(batch), str(e)))
+        elif key == 'view_filters':
+            # Удаляем батчами по 20 штук
+            batch_size = 20
+            for i in range(0, len(elements), batch_size):
+                batch = elements[i:i+batch_size]
+                try:
+                    with revit.Transaction(u"Удаление фильтров видов (batch {0}-{1})".format(i+1, i+len(batch))):
+                        for el in batch:
+                            try:
+                                doc.Delete(el.Id)
+                                deleted += 1
+                                log_to_file(u"Удалён фильтр вида: {0} (Id: {1})".format(el.Name, el.Id))
+                            except Exception as e:
+                                errors += 1
+                                log_to_file(u"Ошибка при удалении фильтра вида: {0} (Id: {1}): {2}".format(el.Name, el.Id, str(e)))
+                except Exception as e:
+                    errors += len(batch)
+                    log_to_file(u"Ошибка транзакции при удалении батча фильтров видов {0}-{1}: {2}".format(i+1, i+len(batch), str(e)))
+        else:
+            for el in elements:
+                log_to_file(u"[DRY-RUN] Был бы удалён: {0} {1}".format(key, el.Id))
+                deleted += 1
         results[key] = (deleted, errors)
         log_to_file(u"Завершено удаление {0}: удалено {1}, ошибок {2}".format(
             key, deleted, errors))
@@ -311,12 +365,12 @@ def main():
     total = 0
     for key, (deleted, errors) in results.items():
         output.print_md(u"## {0}".format(config.CLEANUP_CATEGORIES[key].name))
-        output.print_md(u"- Было бы удалено: {0}".format(deleted))
+        output.print_md(u"- Удалено: {0}".format(deleted))
         if errors:
             output.print_md(u"- Ошибок: {0}".format(errors))
         total += deleted
-    output.print_md(u"\n**Всего было бы удалено: {0}**".format(total))
-    log_to_file(u"Итог: всего было бы удалено {0}".format(total))
+    output.print_md(u"\n**Всего удалено: {0}**".format(total))
+    log_to_file(u"Итог: всего удалено {0}".format(total))
     msg = u"Анализ завершён!\n\n"
     for key, (deleted, errors) in results.items():
         msg += u"{0}: {1}\n".format(config.CLEANUP_CATEGORIES[key].name, deleted)

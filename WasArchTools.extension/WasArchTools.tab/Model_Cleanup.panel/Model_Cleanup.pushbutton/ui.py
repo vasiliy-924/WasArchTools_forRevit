@@ -100,6 +100,11 @@ class PreviewDeleteWindow(Window):
         self._populate_lists()
         self.OkButton.Click += self.on_ok
         self.CancelButton.Click += self.on_cancel
+        # Добавляем обработчики для обновления счетчиков
+        self.AnnotationsList.SelectionChanged += self.update_counts
+        self.LineStylesList.SelectionChanged += self.update_counts
+        self.ViewFiltersList.SelectionChanged += self.update_counts
+        self.update_counts(None, None)
     def _populate_lists(self):
         # Аннотации
         self.AnnotationsList.Items.Clear()
@@ -172,3 +177,11 @@ class PreviewDeleteWindow(Window):
         self.Close()
     def get_selected(self):
         return self.selected 
+
+    def update_counts(self, sender, args):
+        self.AnnotationsCountText.Text = u"Выбрано: {0} из {1}".format(
+            self.AnnotationsList.SelectedItems.Count, self.AnnotationsList.Items.Count)
+        self.LineStylesCountText.Text = u"Выбрано: {0} из {1}".format(
+            self.LineStylesList.SelectedItems.Count, self.LineStylesList.Items.Count)
+        self.ViewFiltersCountText.Text = u"Выбрано: {0} из {1}".format(
+            self.ViewFiltersList.SelectedItems.Count, self.ViewFiltersList.Items.Count) 
