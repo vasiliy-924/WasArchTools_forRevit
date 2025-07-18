@@ -1,0 +1,18 @@
+{
+  "default": {
+    "step": 1.5,
+    "min_distance_from_door": 0.3,
+    "min_distance_from_corner": 0.2
+  },
+  "kitchen": {
+    "step": 1.0,
+    "min_distance_from_sink": 0.6
+  },
+  "bedroom": {
+    "step": 1.8
+  },
+  "living_room": {
+    "step": 2.0,
+    "min_distance_from_tv": 0.5
+  }
+} 

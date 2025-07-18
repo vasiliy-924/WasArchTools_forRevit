@@ -19,8 +19,11 @@ WasArchTools_forRevit/
 │       │   └── Automation Apartments.pushbutton/
 │       │       ├── script.py
 │       │       └── ...
-│       └── Test.panel/               # Тестовые и экспериментальные инструменты
-│           └── AI Auto Worker.pushbutton/
+│       └── AI Tools.panel/               # Тестовые и экспериментальные инструменты
+│           ├── AI Auto Worker.pushbutton/
+│           │   ├── script.py
+│           │   └── ...
+│           └── Socket AI+.pushbutton/
 │               ├── script.py
 │               └── ...
 ├── Readme.md                         # Описание проекта
@@ -46,7 +49,7 @@ WasArchTools_forRevit/
 - Используйте доступные панели и кнопки для автоматизации задач:
   - **Model Cleanup** — инструменты для очистки и оптимизации модели.
   - **TagsData** — автоматизация работы с тегами и данными помещений.
-  - **Test** — экспериментальные функции (например, AI Auto Worker).
+  - **AI Tools** — экспериментальные функции (например, AI Auto Worker, Socket AI+).
 
 ## Рекомендации по иконкам
 
@@ -57,6 +60,6 @@ WasArchTools_forRevit/
 
 Pull requests приветствуются! Пожалуйста, создавайте задачи и обсуждайте новые функции через Issues.
 
-## Лицензия
+## Авторство
 
-Уточните лицензию для вашего проекта (например, MIT, GPL и т.д.).
+**Василий Петров** - [GitHub https://github.com/vasiliy-924](https://github.com/vasiliy-924)

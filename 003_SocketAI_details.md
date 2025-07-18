@@ -19,8 +19,7 @@
 2. **Структура проекта**:
    ```
    SocketAI/
-   ├── .env                  # API keys
-   ├── main_plugin.py        # Главный скрипт
+   ├── scirt.py              # Главный скрипт
    ├── core/                 # Базовые алгоритмы
    │   ├── geometry.py       # Работа с геометрией
    │   ├── rules_engine.py   # Парсинг нормативов
@@ -77,9 +76,9 @@
            return self.rules.get(room_type, self.rules["default"])
    ```
 
-3. **Интеграция в main_plugin.py**:
+3. **Интеграция в script.py**:
    ```python
-   # main_plugin.py
+   # script.py
    from core.geometry import generate_wall_points
    from core.rules_engine import RuleEngine
 
@@ -170,7 +169,7 @@
 
 3. **Интеграция**:
    ```python
-   # main_plugin.py
+   # script.py
    from ai.classifier import RoomClassifier
 
    def place_devices(selected_rooms):
@@ -272,7 +271,7 @@
    author: Your Name
    commands:
      - name: Run SocketAI
-       script: main_plugin.py
+       script: script.py
        icon: assets/icon.png
    ```
 
