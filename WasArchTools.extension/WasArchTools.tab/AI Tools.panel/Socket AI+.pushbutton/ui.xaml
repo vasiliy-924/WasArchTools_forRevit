@@ -1,26 +1,11 @@
-<Window
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    Title="Socket AI+" Height="500" Width="1000">
-  <Grid>
-    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-      <TextBlock Text="AI Auto Worker 🧠"
-                 FontSize="24"
-                 HorizontalAlignment="Center"
-                 TextAlignment="Center"
-                 Margin="0,0,0,10"/>
-      <TextBlock Name="StatusText"
-                 Text="Статус..."
-                 FontSize="16"
-                 HorizontalAlignment="Center"
-                 TextAlignment="Center"
-                 Margin="0,10,0,0"/>
-      <ProgressBar Name="ProgressBar"
-                   Width="220"
-                   Height="16"
-                   Margin="0,18,0,0"
-                   Minimum="0"
-                   Maximum="100"
-                   Value="0"/>
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        Title="Выбор типа розетки" Height="300" Width="400">
+  <StackPanel Margin="10">
+    <TextBlock Text="Выберите тип розетки:" FontSize="16" Margin="0,0,0,10"/>
+    <ListBox Name="SocketTypeList" Height="180" Margin="0,0,0,10"/>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button Name="OkBtn" Content="OK" Width="80" Margin="0,0,10,0" Click="on_ok"/>
+      <Button Name="CancelBtn" Content="Отмена" Width="80" Click="on_cancel"/>
     </StackPanel>
-  </Grid>
+  </StackPanel>
 </Window> 
