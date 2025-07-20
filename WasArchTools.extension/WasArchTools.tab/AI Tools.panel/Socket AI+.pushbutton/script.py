@@ -38,6 +38,30 @@ def get_room_walls(room):
         print(f"[!] Нет стен для помещения: {getattr(room, 'Name', None)}")
     return walls
 
+def get_bottom_wall(room, walls):
+    """
+    Определяет нижнюю стену помещения по минимальной Y-координате центра стены.
+    :param room: объект Room
+    :param walls: список стен
+    :return: стена с минимальным Y центра
+    """
+    # Получаем bounding box помещения
+    bbox = room.get_BoundingBox(None)
+    if not bbox:
+        return None
+    min_y = bbox.Min.Y
+    # Найдём стену, у которой центр ближе всего к min_y
+    min_wall = None
+    min_dist = None
+    for wall in walls:
+        curve = wall.Location.Curve
+        mid = curve.Evaluate(0.5, True)
+        dist = abs(mid.Y - min_y)
+        if min_dist is None or dist < min_dist:
+            min_dist = dist
+            min_wall = wall
+    return min_wall
+
 def get_socket_types(doc):
     symbols = DB.FilteredElementCollector(doc)\
         .OfCategory(DB.BuiltInCategory.OST_ElectricalFixtures)\
@@ -70,20 +94,36 @@ def place_sockets(selected_rooms, socket_symbol):
             walls = get_room_walls(room)
             if not walls:
                 continue
+            # Определяем нижнюю стену
+            bottom_wall = get_bottom_wall(room, walls)
             # Получаем высоту из правил или по умолчанию 0.25 м
             height = rules.get("height", 0.25)
             for wall in walls:
                 try:
-                    points = generate_wall_points(wall, rules["step"])
-                    print(f"Room: {room_name}, Wall: {wall.Id}, Points: {points}")
-                    # Размещаем розетки в точках с нужной высотой
-                    for pt in points:
+                    points_normals = generate_wall_points(wall, rules["step"])
+                    print(f"Room: {room_name}, Wall: {wall.Id}, Points: {points_normals}")
+                    for pt, normal in points_normals:
                         pt_with_height = DB.XYZ(pt.X, pt.Y, height)
-                        # Получаем уровень стены или помещения
                         level = wall.LevelId if hasattr(wall, 'LevelId') else room.LevelId
                         level_obj = doc.GetElement(level)
                         try:
-                            doc.Create.NewFamilyInstance(pt_with_height, socket_symbol, wall, level_obj, DB.Structure.StructuralType.NonStructural)
+                            # Создаём FamilyInstance
+                            inst = doc.Create.NewFamilyInstance(pt_with_height, socket_symbol, wall, level_obj, DB.Structure.StructuralType.NonStructural)
+                            # Вычисляем угол между нормалью и осью X
+                            from math import atan2, pi
+                            angle = atan2(normal.Y, normal.X) + pi/2  # дополнительный поворот на 90 градусов
+                            # Если это нижняя стена, добавляем 180 градусов
+                            if wall == bottom_wall:
+                                angle += pi
+                                print(f"[!] Дополнительный поворот на 180° для нижней стены {wall.Id}")
+                            # Поворачиваем FamilyInstance вокруг Z
+                            loc = inst.Location
+                            if hasattr(loc, 'Rotate'):
+                                axis = DB.Line.CreateUnbound(pt_with_height, DB.XYZ(0,0,1))
+                                loc.Rotate(axis, angle)
+                                print(f"Повернули розетку на {angle:.2f} рад (стена {wall.Id})")
+                            else:
+                                print(f"[!] Невозможно повернуть розетку: Location не поддерживает Rotate")
                             success_count += 1
                         except Exception as e:
                             print(f"[!] Не удалось разместить розетку в точке ({pt_with_height.X:.2f}, {pt_with_height.Y:.2f}, {pt_with_height.Z:.2f}): {e}")

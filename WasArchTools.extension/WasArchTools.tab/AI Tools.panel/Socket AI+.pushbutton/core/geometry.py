@@ -8,10 +8,10 @@ from Autodesk.Revit.DB import XYZ, Line
 
 def generate_wall_points(wall, step=0.5):
     """
-    Генерирует точки вдоль стены с заданным шагом.
+    Генерирует точки вдоль стены с заданным шагом и нормалью к стене в каждой точке.
     :param wall: Экземпляр стены Revit
     :param step: Шаг между точками (в единицах Revit)
-    :return: Список точек XYZ
+    :return: Список кортежей (XYZ, normal)
     """
     curve = wall.Location.Curve
     length = curve.Length
@@ -27,13 +27,16 @@ def generate_wall_points(wall, step=0.5):
     if curve_type != "Line":
         print(f"[!] Стена {getattr(wall, 'Id', '?')}: Кривая типа {curve_type} не поддерживается (только Line)")
         return points
+    direction = curve.Direction
+    # Нормаль в XY: (-Y, X, 0)
+    normal = XYZ(-direction.Y, direction.X, 0)
     n_points = int(length // step)
     for i in range(n_points + 1):
         norm_param = (i * step) / length
         norm_param = min(max(norm_param, 0.0), 1.0)
         try:
             point = curve.Evaluate(norm_param, True)
-            points.append(point)
+            points.append((point, normal))
         except Exception as e:
             print(f"[!] Ошибка Evaluate для стены {getattr(wall, 'Id', '?')}, norm_param={norm_param}, тип кривой: {curve_type}: {e}")
     return points
