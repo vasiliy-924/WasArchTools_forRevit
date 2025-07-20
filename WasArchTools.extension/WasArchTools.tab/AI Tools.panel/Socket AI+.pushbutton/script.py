@@ -4,7 +4,8 @@
 Использует правила из assets/rules.json.
 """
 from pyrevit import revit, DB, forms
-from core.geometry import generate_wall_points
+# from core.geometry import generate_wall_points  # больше не используется
+from core.geometry import generate_curve_points
 from core.rules_engine import RuleEngine
 import ui
 
@@ -69,6 +70,21 @@ def get_socket_types(doc):
         .ToElements()
     return symbols
 
+def get_room_wall_segments(room):
+    doc = room.Document
+    boundaries = room.GetBoundarySegments(DB.SpatialElementBoundaryOptions())
+    if not boundaries:
+        print(f"[!] Нет границ для помещения: {getattr(room, 'Name', None)}")
+        return []
+    segments = []
+    for segment in boundaries[0]:
+        wall = doc.GetElement(segment.ElementId)
+        if isinstance(wall, DB.Wall):
+            segments.append((wall, segment.GetCurve()))
+    if not segments:
+        print(f"[!] Нет стен для помещения: {getattr(room, 'Name', None)}")
+    return segments
+
 def place_sockets(selected_rooms, socket_symbol):
     """
     Расставляет розетки в выбранных помещениях по правилам из rules.json.
@@ -91,18 +107,22 @@ def place_sockets(selected_rooms, socket_symbol):
             except Exception as e:
                 print(f"[!] Ошибка при получении правил для '{room_name}': {e}")
                 continue
-            walls = get_room_walls(room)
-            if not walls:
+            segments = get_room_wall_segments(room)
+            if not segments:
                 continue
-            # Определяем нижнюю стену
-            bottom_wall = get_bottom_wall(room, walls)
+            # Определяем нижнюю стену (по-прежнему по всей стене)
+            bottom_wall = get_bottom_wall(room, [wall for wall, _ in segments])
             # Получаем высоту из правил или по умолчанию 0.25 м
             height = rules.get("height", 0.25)
-            for wall in walls:
+            for wall, curve in segments:
                 try:
-                    points_normals = generate_wall_points(wall, rules["step"])
-                    print(f"Room: {room_name}, Wall: {wall.Id}, Points: {points_normals}")
+                    points_normals = generate_curve_points(curve, rules["step"])
+                    print(
+                        f"Room: {room_name}, Wall: {wall.Id}, Points: {points_normals}"
+                    )
                     for pt, normal in points_normals:
+                        if not room.IsPointInRoom(pt):
+                            continue
                         pt_with_height = DB.XYZ(pt.X, pt.Y, height)
                         level = wall.LevelId if hasattr(wall, 'LevelId') else room.LevelId
                         level_obj = doc.GetElement(level)
@@ -115,18 +135,24 @@ def place_sockets(selected_rooms, socket_symbol):
                             # Если это нижняя стена, добавляем 180 градусов
                             if wall == bottom_wall:
                                 angle += pi
-                                print(f"[!] Дополнительный поворот на 180° для нижней стены {wall.Id}")
+                                print(
+                                    f"[!] Дополнительный поворот на 180° для нижней стены {wall.Id}"
+                                )
                             # Поворачиваем FamilyInstance вокруг Z
                             loc = inst.Location
                             if hasattr(loc, 'Rotate'):
                                 axis = DB.Line.CreateUnbound(pt_with_height, DB.XYZ(0,0,1))
                                 loc.Rotate(axis, angle)
-                                print(f"Повернули розетку на {angle:.2f} рад (стена {wall.Id})")
+                                print(
+                                    f"Повернули розетку на {angle:.2f} рад (стена {wall.Id})"
+                                )
                             else:
                                 print(f"[!] Невозможно повернуть розетку: Location не поддерживает Rotate")
                             success_count += 1
                         except Exception as e:
-                            print(f"[!] Не удалось разместить розетку в точке ({pt_with_height.X:.2f}, {pt_with_height.Y:.2f}, {pt_with_height.Z:.2f}): {e}")
+                            print(
+                                f"[!] Не удалось разместить розетку в точке ({pt_with_height.X:.2f}, {pt_with_height.Y:.2f}, {pt_with_height.Z:.2f}): {e}"
+                            )
                             fail_count += 1
                 except Exception as e:
                     print(f"[!] Ошибка при генерации/размещении для стены {wall.Id}: {e}")
