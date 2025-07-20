@@ -1,6 +1,6 @@
-## Версия pyRevit, которая запустилась
+## Версия pyRevit, самая свежая pyRevit v5.2.0
 ```
-**pyRevit_5.0.1.25051_signed.exe**
+**pyRevit 5.2.0.25181 Installer**
 ```
 
 ## Процедура очищения .addin-файлов
