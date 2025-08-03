@@ -9,8 +9,20 @@ clr.AddReference('WindowsBase')
 class SocketTypeSelector(forms.WPFWindow):
     def __init__(self, xaml_path, socket_names):
         forms.WPFWindow.__init__(self, xaml_path)
+        self.all_socket_names = socket_names
         self.SocketTypeList.ItemsSource = socket_names
         self.selected = None
+
+    def on_search(self, sender, args):
+        search_text = self.SearchBox.Text.lower()
+        if search_text:
+            # Фильтруем список по поисковому запросу
+            filtered_names = [name for name in self.all_socket_names
+                            if search_text in name.lower()]
+            self.SocketTypeList.ItemsSource = filtered_names
+        else:
+            # Если поиск пустой, показываем все элементы
+            self.SocketTypeList.ItemsSource = self.all_socket_names
 
     def on_ok(self, sender, args):
         sel = self.SocketTypeList.SelectedItem

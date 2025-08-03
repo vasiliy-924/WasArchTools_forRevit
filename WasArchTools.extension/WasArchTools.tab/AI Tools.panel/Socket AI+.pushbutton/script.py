@@ -110,8 +110,6 @@ def place_sockets(selected_rooms, socket_symbol):
             segments = get_room_wall_segments(room)
             if not segments:
                 continue
-            # Определяем нижнюю стену (по-прежнему по всей стене)
-            bottom_wall = get_bottom_wall(room, [wall for wall, _ in segments])
             # Получаем высоту из правил или по умолчанию 0.25 м
             height = rules.get("height", 0.25)
             for wall, curve in segments:
@@ -132,12 +130,6 @@ def place_sockets(selected_rooms, socket_symbol):
                             # Вычисляем угол между нормалью и осью X
                             from math import atan2, pi
                             angle = atan2(normal.Y, normal.X) + pi/2  # дополнительный поворот на 90 градусов
-                            # Если это нижняя стена, добавляем 180 градусов
-                            if wall == bottom_wall:
-                                angle += pi
-                                print(
-                                    f"[!] Дополнительный поворот на 180° для нижней стены {wall.Id}"
-                                )
                             # Поворачиваем FamilyInstance вокруг Z
                             loc = inst.Location
                             if hasattr(loc, 'Rotate'):

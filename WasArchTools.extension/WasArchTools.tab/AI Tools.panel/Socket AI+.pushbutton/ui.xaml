@@ -1,8 +1,10 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        Title="Выбор типа розетки" Height="300" Width="400">
+        Title="Выбор типа розетки" Height="350" Width="450">
   <StackPanel Margin="10">
     <TextBlock Text="Выберите тип розетки:" FontSize="16" Margin="0,0,0,10"/>
-    <ListBox Name="SocketTypeList" Height="180" Margin="0,0,0,10"/>
+    <TextBlock Text="Поиск:" FontSize="12" Margin="0,0,0,5"/>
+    <TextBox Name="SearchBox" Height="25" Margin="0,0,0,10" TextChanged="on_search"/>
+    <ListBox Name="SocketTypeList" Height="200" Margin="0,0,0,10"/>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
       <Button Name="OkBtn" Content="OK" Width="80" Margin="0,0,10,0" Click="on_ok"/>
       <Button Name="CancelBtn" Content="Отмена" Width="80" Click="on_cancel"/>
