@@ -63,7 +63,8 @@ def generate_curve_points(curve, step=0.5):
         print(f"[!] Кривая типа {curve_type} не поддерживается (только Line)")
         return points
     direction = curve.Direction
-    normal = XYZ(-direction.Y, direction.X, 0)
+    # Инвертируем нормаль, чтобы она была направлена внутрь помещения
+    normal = XYZ(direction.Y, -direction.X, 0)
     n_points = int(length // step)
     for i in range(n_points + 1):
         norm_param = (i * step) / length
