@@ -16,10 +16,15 @@ import re
 def _extract_token(view_name):
     if not view_name:
         return None
-    # Take characters from start until first space or hyphen
+    # Take characters from start until " -" or "-"
     name = view_name.strip()
-    match = re.match(r"^([^\s\-]+)", name)
-    return match.group(1) if match else name
+    # Look for " -" first, then "-"
+    if " -" in name:
+        return name.split(" -")[0]
+    elif "-" in name:
+        return name.split("-")[0]
+    else:
+        return name
 
 
 def _gather_viewports_from_selection(db_module, doc, uidoc):
